@@ -23,6 +23,14 @@ app.post('/todos', (req, res) => {
   });
 });
 
+app.get('/todos', (req, res) => {
+  Todo.find().then((todos) => {
+    res.send({todos});
+  }, (err) => {
+    res.status(400).send(err);
+  });
+});
+
 app.post('/users', (req, res) => {
   let user = new User({
     email: req.body.email
@@ -30,6 +38,14 @@ app.post('/users', (req, res) => {
 
   user.save().then((result) => {
     res.send(result);
+  }, (err) => {
+    res.status(400).send(err);
+  });
+});
+
+app.get('/users', (req, res) => {
+  User.find().then((users) => {
+    res.send({users});
   }, (err) => {
     res.status(400).send(err);
   });
