@@ -6,8 +6,16 @@ const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 const {User} = require('./../models/user');
 
+const todosList = [{
+  text: 'First test todo'
+}, {
+  text: 'Second test todo'
+}];
+
 beforeEach((done) => {
-  Todo.remove({}).then(() => done());
+  Todo.remove({}).then(() => {
+    return Todo.insertMany(todosList);
+  }).then(() => done());
 });
 
 
@@ -28,7 +36,7 @@ describe('POST /todos', () => {
           return done(err);
         }
 
-        Todo.find().then( (todos) => {
+        Todo.find({text}).then( (todos) => {
           expect(todos.length).toBe(1);
           expect(todos[0].text).toBe(text);
           done();
@@ -47,7 +55,7 @@ describe('POST /todos', () => {
         }
 
         Todo.find().then((todos) => {
-          expect(todos.length).toBe(0);
+          expect(todos.length).toBe(2);
           done();
         }).catch((err) => done(err));
 
@@ -57,9 +65,28 @@ describe('POST /todos', () => {
 
 });
 
+describe('GET /todos', () => {
+  it('should get all todos', (done) => {
+    request(app)
+      .get('/todos')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todos.length).toBe(2);
+      })
+      .end(done);
+  });
+});
+
+const usersList = [{
+  email: 'example@example.com'
+},{
+  email: 'example2@example.com'
+}];
 
 beforeEach((done) => {
-  User.remove().then(() => done());
+  User.remove().then(() => {
+    return User.insertMany(usersList);
+  }).then(() => done());
 });
 
 describe('POST /users', () => {
@@ -78,7 +105,7 @@ describe('POST /users', () => {
           return done(err);
         }
         
-        User.find().then((users) => {
+        User.find({email}).then((users) => {
           expect(users.length).toBe(1);
           expect(users[0].email).toBe(email);
           done();
@@ -98,10 +125,20 @@ describe('POST /users', () => {
         }
 
         User.find().then((users) => {
-          expect(users.length).toBe(0);
+          expect(users.length).toBe(2);
           done();
         }).catch((err) => done(err));
       });
+  });
+
+  it('should get all the users', (done) => {
+    request(app)
+      .get('/users')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.users.length).toBe(2);
+      })
+      .end(done);
   });
 
 });
