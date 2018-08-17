@@ -1,14 +1,16 @@
 const expect = require('expect');
 const request = require('supertest');
-
+const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 const {User} = require('./../models/user');
 
 const todosList = [{
+  _id: new ObjectID,
   text: 'First test todo'
 }, {
+  _id: new ObjectID,
   text: 'Second test todo'
 }];
 
@@ -78,8 +80,10 @@ describe('GET /todos', () => {
 });
 
 const usersList = [{
+  _id: new ObjectID,
   email: 'example@example.com'
 },{
+  _id: new ObjectID,
   email: 'example2@example.com'
 }];
 
@@ -131,6 +135,9 @@ describe('POST /users', () => {
       });
   });
 
+});
+
+describe('GET /users', () => {
   it('should get all the users', (done) => {
     request(app)
       .get('/users')
@@ -138,6 +145,63 @@ describe('POST /users', () => {
       .expect((res) => {
         expect(res.body.users.length).toBe(2);
       })
+      .end(done);
+  });
+});
+
+describe('GET /todos/:id', () => {
+
+  it('should return todo doc', (done) => {
+    request(app)
+      .get(`/todos/${todosList[0]._id.toHexString()}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(todosList[0].text);
+      })
+      .end(done);
+  });
+
+  it('should return 404 if todo not found', (done) => {
+
+    request(app)
+      .get(`/users/${ (new ObjectID).toHexString() }`)
+      .expect(404)
+      .end(done);
+
+  });
+
+  it('should return 404 for non-object ids', (done) => {
+    request(app)
+      .get(`/user/123`)
+      .expect(404)
+      .end(done);
+  });
+
+});
+
+
+describe('GET /user/:id', () => {
+  it('should return user doc', (done) => {
+    request(app)
+      .get(`/users/${usersList[0]._id.toHexString()}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.user.email).toBe(usersList[0].email);
+      })
+      .end(done);
+  });
+
+  it('should return 404 if user not found', (done) => {
+    request(app)
+      .get(`/users/${(new ObjectID).toHexString()}`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 for non-object ids', (done) => {
+    request(app)
+      .get('/users/123456')
+      .expect(404)
       .end(done);
   });
 
