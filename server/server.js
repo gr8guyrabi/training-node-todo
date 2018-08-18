@@ -85,6 +85,38 @@ app.get('/users/:id', (req, res) => {
   });
 });
 
+app.delete('/todos/:id', (req, res) => {
+  let id = req.params.id;
+  if(!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  Todo.findByIdAndRemove(id).then((todo) => {
+    if(!todo) {
+      return res.status(404).send();
+    }
+    return res.send({todo});
+  }, (err) => {
+    return res.status(404).send();
+  });
+});
+
+app.delete('/users/:id', (req, res) => {
+  let id = req.params.id;
+  if(!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+  User.findByIdAndRemove(id).then((user) => {
+    if(!user) {
+      return res.status(404).send();
+    }
+    return res.send({user});
+  }, (err) => {
+    return res.status(404).send();
+  });
+});
+
+
 
 app.listen(port, () => {
   console.log(`Started up at port ${port}`);
