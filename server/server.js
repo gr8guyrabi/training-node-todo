@@ -39,14 +39,18 @@ app.get('/todos', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-  let user = new User({
-    email: req.body.email
-  });
+  const body = _.pick(req.body, ['email','password']);
+  console.log(body);
+  let user = new User(body);
 
-  user.save().then((result) => {
-    res.send(result);
+  user.save().then((user) => {
+    return user.generateAuthToken();
   }, (err) => {
-    res.status(400).send(err);
+    res.status(401).send(err);
+  }).then((token) => {
+    res.header('x-auth', token).send(user);
+  }).catch((err) => {
+    res.status(402).send(err);
   });
 });
 
