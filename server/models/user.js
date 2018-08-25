@@ -49,6 +49,15 @@ UserSchema.methods.generateAuthToken = function () {
   })
 }
 
+UserSchema.methods.removeToken = function (token) {
+  const user = this;
+  return user.update({
+    $pull: {
+      tokens: { token }
+    }
+  });
+}
+
 UserSchema.statics.findByCredentials = function (data) {
   let username = getUserField();
   const User = this;
@@ -92,7 +101,6 @@ UserSchema.statics.findByToken = function (token) {
   });
 
 }
-
 
 UserSchema.pre('save', function (next) {
   const user = this;

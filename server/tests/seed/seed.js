@@ -22,8 +22,11 @@ const usersList = [{
 }];
 
 const populateUsers = (done) => {
-  User.remove().then(() => {
-    return User.insertMany(usersList);
+  User.remove({}).then(() => {
+    let userOne = new User(usersList[0]).save();
+    let userTwo = new User(usersList[1]).save();
+
+    return Promise.all([userOne, userTwo]);
   }).then(() => done());
 };
 

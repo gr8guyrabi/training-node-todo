@@ -158,8 +158,6 @@ app.patch('/todos/:id', (req, res) => {
 });
 
 
-// POST /users/login
-
 app.post('/users/login', (req, res) => {
   const data = _.pick(req.body, ['email', 'password']);
   User.findByCredentials(data).then((user) => {
@@ -175,5 +173,12 @@ app.listen(port, () => {
   console.log(`Started up at port ${port}`);
 });
 
+app.delete('/users/me/token', authenticate, (req, res) => {
+  req.user.removeToken(req.token).then(() => {
+    res.send();
+  }, () => {
+    res.status(400).send();
+  });
+});
 
 module.exports = {app};
